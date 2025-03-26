@@ -1,11 +1,20 @@
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.io.*;
+import java.lang.reflect.Type;
 import java.util.*;
 
 public class Main {
     private static Scanner scanner = new Scanner(System.in);
     private static List<Task> tasks = new ArrayList<>();
     private static int nextId = 1;
+    private static final String FILE_NAME = "tasks.json";
+    private static final Gson gson = new Gson();
 
     public static void main(String[] args) {
+        loadTasks();
+
         while (true) {
             showMenu();
             String option = scanner.nextLine();
@@ -15,8 +24,11 @@ public class Main {
                 case "3": updateTask(); break;
                 case "4": completeTask(); break;
                 case "5": deleteTask(); break;
-                case "0": System.out.println("Saindo..."); return;
-                default: System.out.println("Opção inválida.");
+                case "0":
+                    System.out.println("Saindo...");
+                    return;
+                default:
+                    System.out.println("Opção inválida.");
             }
         }
     }
@@ -39,6 +51,7 @@ public class Main {
         String desc = scanner.nextLine();
         Task task = new Task(nextId++, title, desc);
         tasks.add(task);
+        saveTasks();
         System.out.println("Tarefa adicionada com sucesso!");
     }
 
@@ -61,6 +74,7 @@ public class Main {
             task.setTitle(scanner.nextLine());
             System.out.print("Nova descrição: ");
             task.setDescription(scanner.nextLine());
+            saveTasks();
             System.out.println("Tarefa atualizada!");
         } else {
             System.out.println("Tarefa não encontrada.");
@@ -73,6 +87,7 @@ public class Main {
         Task task = findTaskById(id);
         if (task != null) {
             task.setCompleted(true);
+            saveTasks();
             System.out.println("Tarefa marcada como concluída!");
         } else {
             System.out.println("Tarefa não encontrada.");
@@ -85,6 +100,7 @@ public class Main {
         Task task = findTaskById(id);
         if (task != null) {
             tasks.remove(task);
+            saveTasks();
             System.out.println("Tarefa removida!");
         } else {
             System.out.println("Tarefa não encontrada.");
@@ -96,5 +112,26 @@ public class Main {
             if (t.getId() == id) return t;
         }
         return null;
+    }
+
+    private static void saveTasks() {
+        try (FileWriter writer = new FileWriter(FILE_NAME)) {
+            gson.toJson(tasks, writer);
+        } catch (IOException e) {
+            System.out.println("Erro ao salvar tarefas: " + e.getMessage());
+        }
+    }
+
+    private static void loadTasks() {
+        try (Reader reader = new FileReader(FILE_NAME)) {
+            Type taskListType = new TypeToken<List<Task>>() {}.getType();
+            tasks = gson.fromJson(reader, taskListType);
+            if (tasks == null) tasks = new ArrayList<>();
+            nextId = tasks.stream().mapToInt(Task::getId).max().orElse(0) + 1;
+        } catch (FileNotFoundException e) {
+            tasks = new ArrayList<>();
+        } catch (IOException e) {
+            System.out.println("Erro ao carregar tarefas: " + e.getMessage());
+        }
     }
 }
