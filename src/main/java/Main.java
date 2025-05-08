@@ -1,9 +1,12 @@
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+
 import java.io.*;
 import java.lang.reflect.Type;
+
 import java.util.*;
+
 
 public class Main {
     private static Scanner scanner = new Scanner(System.in);
@@ -46,9 +49,9 @@ public class Main {
 
     private static void createTask() {
         System.out.print("Título: ");
-        String title = scanner.nextLine();
+        String title = (String) Parse.parse(scanner.nextLine());
         System.out.print("Descrição: ");
-        String desc = scanner.nextLine();
+        String desc = (String) Parse.parse(scanner.nextLine());
         Task task = new Task(nextId++, title, desc);
         tasks.add(task);
         saveTasks();
@@ -67,7 +70,7 @@ public class Main {
 
     private static void updateTask() {
         System.out.print("ID da tarefa a editar: ");
-        int id = Integer.parseInt(scanner.nextLine());
+        int id = (int) Parse.parse(scanner.nextLine());
         Task task = findTaskById(id);
         if (task != null) {
             System.out.print("Novo título: ");
@@ -83,7 +86,7 @@ public class Main {
 
     private static void completeTask() {
         System.out.print("ID da tarefa a concluir: ");
-        int id = Integer.parseInt(scanner.nextLine());
+        int id = (int) Parse.parse(scanner.nextLine());
         Task task = findTaskById(id);
         if (task != null) {
             task.setCompleted(true);
@@ -96,7 +99,7 @@ public class Main {
 
     private static void deleteTask() {
         System.out.print("ID da tarefa a remover: ");
-        int id = Integer.parseInt(scanner.nextLine());
+        int id = (int) Parse.parse(scanner.nextLine());
         Task task = findTaskById(id);
         if (task != null) {
             tasks.remove(task);
